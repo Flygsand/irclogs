@@ -1,0 +1,6 @@
+{
+    "title": "%s",
+    "log_path": "/path/to/logs",
+    "log_encoding": "utf-8",
+    "html_encoding": "utf-8"
+}
