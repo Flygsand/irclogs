@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import traceback
 import gzip
 from os import path
 from pygments import highlight
 from pygments.lexers import IrcLogsLexer
-from pygments.formatters import HtmlFormatter
-from configuration import load_config
-from http import error_to_status
+from irclogs.formatters import HtmlFormatter
+from irclogs.utils import config, http
 
 class App(object):
 
@@ -24,8 +24,8 @@ class App(object):
             yield output
 
         except Exception, e:
-            respond(error_to_status(e), [('Content-Type', 'text/plain')])
-            yield str(e)
+            respond(http.error_to_status(e), [('Content-Type', 'text/plain')])
+            yield traceback.format_exc()
 
     def highlight(self, file):
 
@@ -48,4 +48,11 @@ class App(object):
             return highlight(code, lexer, formatter)
 
 
-app = App(load_config('./config.json'))
+app = App(config.load_file('./config.json'))
+
+if __name__ == '__main__':
+    from paste import reloader
+    reloader.install()
+
+    from wsgiref import simple_server
+    simple_server.make_server('', 8080, app).serve_forever()

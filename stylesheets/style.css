@@ -143,3 +143,7 @@ h2 {
   padding-left: 5px;
   padding-top: 26px;
 }
+
+.highlight a {
+  color: #cc6666;
+}
