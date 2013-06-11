@@ -2,11 +2,10 @@
 
 import traceback
 import gzip
-from os import path
 from pygments import highlight
 from pygments.lexers import IrcLogsLexer
 from irclogs.formatters import HtmlFormatter
-from irclogs.utils import config, http
+from irclogs.utils import config, http, path
 
 class App(object):
 
@@ -44,15 +43,17 @@ class App(object):
 
         finally:
             lexer = IrcLogsLexer(encoding=self.config.log_encoding)
-            formatter = HtmlFormatter(encoding=self.config.html_encoding, full=True, title=self.config.title % path.basename(file), cssfile='./stylesheets/style.css', noclobber_cssfile=True)
+            formatter = HtmlFormatter(encoding=self.config.html_encoding, title=self.config.title % path.basename(file), cssfile='/stylesheets/style.css')
             return highlight(code, lexer, formatter)
 
 
 app = App(config.load_file('./config.json'))
 
 if __name__ == '__main__':
-    from paste import reloader
+    from paste import reloader, urlparser, cascade
     reloader.install()
 
+    assets = urlparser.StaticURLParser('./public')
+
     from wsgiref import simple_server
-    simple_server.make_server('', 8080, app).serve_forever()
+    simple_server.make_server('', 8080, cascade.Cascade([assets, app])).serve_forever()
